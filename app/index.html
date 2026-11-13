@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SafeLink Registry — consensus-checked URL safety</title>
+  <meta name="description" content="A shared registry of safe, malicious and disputed URLs on GenLayer Studionet. Validators fetch each page independently; a verdict is written only when they agree exactly." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div class="masthead-top">
+        <p class="kicker">GenLayer Studionet &middot; Intelligent Contract &middot; Chain 61999</p>
+        <button id="connectBtn" class="btn btn-ink" type="button">Connect wallet</button>
+      </div>
+      <h1>SafeLink Registry</h1>
+      <p class="lede">A shared registry of safe, malicious and disputed URLs. Validators fetch
+      each page independently and re-derive the same signals; a verdict is written
+      only when they agree exactly. Disagreement writes nothing.</p>
+      <dl class="contract-line">
+        <div><dt>Contract</dt><dd><a class="mono" id="contractLink" href="https://explorer-studio.genlayer.com/address/0x2920A2340F47226490Ac645bDCE64C390Fac40DA" target="_blank" rel="noopener">0x2920A2340F47226490Ac645bDCE64C390Fac40DA</a></dd></div>
+        <div><dt>Network</dt><dd>Studionet &middot; testnet &middot; test GEN only</dd></div>
+        <div><dt>Status</dt><dd id="walletStatus">Read-only &mdash; no wallet connected</dd></div>
+      </dl>
+    </header>
+
+    <section class="stats" aria-label="Registry statistics">
+      <h2 class="section-label">Registry at a glance</h2>
+      <div class="stat-grid" id="statGrid">
+        <div class="stat"><span class="stat-num" data-stat="total_entries">&ndash;</span><span class="stat-label">Entries</span></div>
+        <div class="stat"><span class="stat-num" data-stat="check_count">&ndash;</span><span class="stat-label">Checks run</span></div>
+        <div class="stat"><span class="stat-num stat-safe" data-stat="safe">&ndash;</span><span class="stat-label">Safe</span></div>
+        <div class="stat"><span class="stat-num stat-malicious" data-stat="malicious">&ndash;</span><span class="stat-label">Malicious</span></div>
+        <div class="stat"><span class="stat-num stat-disputed" data-stat="disputed">&ndash;</span><span class="stat-label">Disputed</span></div>
+        <div class="stat"><span class="stat-num" data-stat="total_disputes">&ndash;</span><span class="stat-label">Disputes</span></div>
+      </div>
+      <p class="fineprint" id="statsNote">Reading the contract&hellip;</p>
+    </section>
+
+    <main>
+      <section class="check" aria-label="Check a URL">
+        <h2 class="section-label"><span class="section-no">01</span> Check a URL</h2>
+        <form id="checkForm">
+          <label class="field-label" for="urlInput">URL to check</label>
+          <div class="check-row">
+            <input id="urlInput" class="mono" type="url" inputmode="url" autocomplete="off"
+              placeholder="https://example.com/" spellcheck="false" required />
+            <button class="btn btn-ink" type="submit" id="checkBtn">Check on-chain</button>
+            <button class="btn btn-outline" type="button" id="lookupBtn">Look up</button>
+          </div>
+          <p class="fineprint">
+            <strong>Check on-chain</strong> runs a consensus round and writes the verdict (needs a
+            wallet on Studionet; about a minute). <strong>Look up</strong> reads the stored verdict
+            without a transaction and works without a wallet. A page that cannot be fetched
+            ends <em>unchecked</em> &mdash; no verdict is written from partial data.
+          </p>
+        </form>
+
+        <div id="txStatus" class="tx-status" hidden></div>
+        <div id="result" class="receipt" hidden></div>
+      </section>
+
+      <section class="registry" aria-label="Recent entries">
+        <div class="section-head">
+          <h2 class="section-label"><span class="section-no">02</span> Recent entries</h2>
+          <button class="btn btn-outline btn-small" type="button" id="refreshBtn">Refresh</button>
+        </div>
+        <p class="fineprint">Newest first. Every entry links to its stored signals. Dispute or
+        request a re-check from the entry itself; both are on-chain writes and need a wallet.</p>
+        <div id="entriesWrap">
+          <p class="fineprint" id="entriesNote">Reading the contract&hellip;</p>
+          <table class="ledger" id="entriesTable" hidden>
+            <thead>
+              <tr><th>Verdict</th><th>URL</th><th>Host</th><th>HTTP</th><th>Disputes</th><th></th></tr>
+            </thead>
+            <tbody id="entriesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="watchlists" aria-label="Brands and blocked hosts">
+        <h2 class="section-label"><span class="section-no">03</span> What the registry watches</h2>
+        <div class="watch-grid">
+          <div>
+            <h3>Brands</h3>
+            <p class="fineprint">Lookalike domains of these brands count as impersonation.</p>
+            <ul class="tag-list mono" id="brandsList"><li>Loading&hellip;</li></ul>
+          </div>
+          <div>
+            <h3>Blocked hosts</h3>
+            <p class="fineprint">Any URL on a blocked host is malicious by rule.</p>
+            <ul class="tag-list mono" id="blockedList"><li>Loading&hellip;</li></ul>
+          </div>
+        </div>
+        <p class="fineprint">Brand and blocklist management is admin-only (the deployer account)
+        and is not available in this app. Nothing here can change the registry rules.</p>
+      </section>
+
+      <section class="how" aria-label="How a check works">
+        <h2 class="section-label"><span class="section-no">04</span> How a check works</h2>
+        <ol class="steps">
+          <li><strong>Submit.</strong> Any account can ask the contract to check a URL.</li>
+          <li><strong>Fetch.</strong> The leader fetches the page; every validator fetches it again
+          and derives the same signals &mdash; scheme, host shape, brand impersonation, password
+          field, off-host form, blocklist.</li>
+          <li><strong>Agree.</strong> The verdict is written only when validators agree exactly on
+          all ten compared signals. A password field alone is not a warning; a blocklisted host
+          is malicious by rule.</li>
+        </ol>
+        <p class="fineprint">The verdict is a deterministic rule, not a model opinion. The same URL
+        checked twice gives the same verdict, and any reviewer can re-derive it from the stored
+        evidence. Source and tests:
+        <a href="https://github.com/syariffadilla/SafeLink-On-GenLayer" target="_blank" rel="noopener">github.com/syariffadilla/SafeLink-On-GenLayer</a>.</p>
+      </section>
+    </main>
+
+    <footer>
+      <p>SafeLink Registry &mdash; GenLayer Studionet testnet. Test GEN only; nothing here has
+      real value. Contract
+      <a class="mono" href="https://explorer-studio.genlayer.com/address/0x2920A2340F47226490Ac645bDCE64C390Fac40DA" target="_blank" rel="noopener">0x2920A2340F47226490Ac645bDCE64C390Fac40DA</a>
+      &middot; <a href="https://github.com/syariffadilla/SafeLink-On-GenLayer" target="_blank" rel="noopener">Source</a>
+      &middot; <a href="https://docs.genlayer.com/" target="_blank" rel="noopener">GenLayer docs</a></p>
+    </footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
