@@ -1,9 +1,7 @@
 # Project Explorer application — DRAFT (do not submit yet)
 
-> Syarif submits this himself via the Portal. The demo URL is still pending:
-> the Vercel deploy is blocked on a connector scope authorization (see
-> README.md "Deploy"). Fill in the demo URL below once the deployment is live,
-> then submit. Nothing here has been submitted to the Portal.
+> Syarif submits this himself via the Portal. Demo URL is live and
+> verified (see below). Nothing here has been submitted to the Portal.
 
 ## Project name
 
@@ -21,17 +19,17 @@ SafeLink Registry is a web app for the SafeLink Intelligent Contract on GenLayer
 
 1. Open the demo URL and confirm the page shows live registry stats (entries, checks, safe/malicious/disputed counts) read from the contract.
 2. In "Check a URL", enter https://example.com/ and click "Look up" (no wallet needed): expect verdict safe.
-3. Connect MetaMask or Rabby, let the app add/switch to GenLayer Studionet (chain 61999), enter https://example.net/ and click "Check on-chain": approve the transaction, wait for finalization, expect verdict safe with a tx hash linking to the Studio explorer.
+3. Connect MetaMask or Rabby, let the app add/switch to GenLayer Studionet (chain 61999), enter https://example.edu/ and click "Check on-chain": approve the transaction, wait for finalization, expect verdict safe with a tx hash linking to the Studio explorer. (Use example.edu, not example.net: example.net is already registered and fresh, so checking it would return the cached verdict without a new consensus round.)
 4. In "Recent entries", open any entry and click "Re-check" or "Dispute" to confirm those writes work.
 5. Confirm the footer states Studionet testnet / test GEN only.
 
 ## Expected verification outcome (420 / 500 chars)
 
-The steward sees live stats matching the on-chain registry (3+ entries, safe/malicious counts from get_stats), a read-only lookup returning safe for https://example.com/, and a new on-chain check of https://example.net/ finalizing with consensus MAJORITY_AGREE, verdict safe, and a Studio explorer link to the transaction. Contract: https://explorer-studio.genlayer.com/address/0x2920A2340F47226490Ac645bDCE64C390Fac40DA
+The steward sees live stats matching the on-chain registry (3+ entries, safe/malicious counts from get_stats), a read-only lookup returning safe for https://example.com/, and a new on-chain check of https://example.edu/ finalizing with consensus MAJORITY_AGREE, verdict safe, and a Studio explorer link to the transaction. Contract: https://explorer-studio.genlayer.com/address/0x2920A2340F47226490Ac645bDCE64C390Fac40DA
 
 ## Links to attach
 
-- Demo URL: [PENDING — fill in after the Vercel deploy succeeds]
+- Demo URL: https://safe-link-on-gen-layer.vercel.app/ (deployed by Syarif himself on Vercel 13 Nov 2026; verified live by Muse 22:39 WIB — stats, entries, lookup all match the on-chain registry)
 - Contract (GenLayer Explorer Contract, Studionet):
   https://explorer-studio.genlayer.com/address/0x2920A2340F47226490Ac645bDCE64C390Fac40DA
 - GitHub repository (contract + tests + this app as `app/` when added):
